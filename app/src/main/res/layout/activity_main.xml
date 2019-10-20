@@ -1,0 +1,124 @@
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.MainActivity">
+
+    <RelativeLayout
+        android:id="@+id/relLayout0"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:elevation="10dp"
+        android:background="@drawable/white_border">
+
+        <Button
+            android:id="@+id/direction"
+            android:background="@drawable/ic_subdirectory_arrow_right"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:layout_marginLeft="-5dp"
+            android:layout_marginTop="-5dp"
+            android:background="@drawable/direction_button_border"
+            android:layout_alignLeft="@id/direction"
+            android:layout_alignTop="@id/direction"
+            android:layout_width="30dp"
+            android:layout_height="30dp"/>
+
+        <EditText
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/transparent"
+            android:hint="Enter Start Point Of Direction"
+            android:id="@+id/input_start_point"
+            android:textColor="#000"
+            android:textSize="15sp"
+            android:layout_toRightOf="@id/direction"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:imeOptions="actionSearch"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_below="@id/relLayout0"
+        android:id="@+id/relLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:elevation="10dp"
+        android:background="@drawable/white_border">
+
+        <ImageView
+            android:id="@+id/ic_magnify"
+            android:background="@drawable/ic_search"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"/>
+
+        <EditText
+            android:layout_marginLeft="5dp"
+            android:background="@android:color/transparent"
+            android:hint="Enter: Excepted Address/End Point Of Direction"
+            android:id="@+id/input_search"
+            android:textColor="#000"
+            android:textSize="15sp"
+            android:layout_toRightOf="@id/ic_magnify"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:imeOptions="actionSearch"/>
+    </RelativeLayout>
+
+    <fragment
+        android:layout_below="@id/relLayout1"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.example.ngoctri.mapdirectionsample.MapsActivity" />
+
+    <ImageView
+        android:id="@+id/border"
+        android:elevation="20dp"
+        android:background="#26000000"
+        android:layout_below="@id/relLayout1"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentRight="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginRight="10dp"/>
+
+    <Button
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/ic_my_location"
+        android:layout_alignTop="@id/border"
+        android:layout_alignLeft="@id/border"
+        android:id="@+id/current_location"
+        android:layout_width="20dp"
+        android:layout_height="20dp" />
+
+    <ImageView
+        android:layout_below="@id/border"
+        android:id="@+id/border_clear"
+        android:elevation="20dp"
+        android:background="#26000000"
+        android:layout_alignParentRight="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginRight="10dp"/>
+
+    <Button
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/ic_clear"
+        android:layout_alignTop="@id/border_clear"
+        android:layout_alignLeft="@id/border_clear"
+        android:id="@+id/clear_map"
+        android:layout_width="20dp"
+        android:layout_height="20dp" />
+
+</RelativeLayout>
