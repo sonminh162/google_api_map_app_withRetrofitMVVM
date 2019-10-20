@@ -30,6 +30,25 @@
             android:layout_width="30dp"
             android:layout_height="30dp"/>
 
+        <Button
+            android:layout_alignParentRight="true"
+            android:id="@+id/reverse"
+            android:background="@drawable/loop"
+            android:layout_marginRight="10dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:layout_marginLeft="-5dp"
+            android:layout_marginTop="-5dp"
+            android:background="@drawable/direction_button_border"
+            android:layout_alignLeft="@id/reverse"
+            android:layout_alignTop="@id/reverse"
+            android:layout_width="30dp"
+            android:layout_height="30dp"/>
+
         <EditText
             android:layout_marginLeft="10dp"
             android:background="@android:color/transparent"

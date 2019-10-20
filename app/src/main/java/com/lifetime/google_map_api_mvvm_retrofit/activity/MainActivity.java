@@ -118,9 +118,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.setMyLocationEnabled(false);
 
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST);
             return;
         }
 
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void SetUpUIAddSearchFeature(){
+    private void SetUpUIAddSearchFeature() {
         findViewById(R.id.border_clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -161,17 +161,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         findViewById(R.id.direction).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDirectionResult();
+                showDirectionResult(false);
+            }
+        });
+
+        findViewById(R.id.reverse).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDirectionResult(true);
             }
         });
 
         mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if(actionId == EditorInfo.IME_ACTION_SEARCH
+                if (actionId == EditorInfo.IME_ACTION_SEARCH
                         || actionId == EditorInfo.IME_ACTION_DONE
                         || keyEvent.getAction() == KeyEvent.ACTION_DOWN
-                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER){
+                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
                     showSearchLocationResult();
                 }
                 return false;
@@ -187,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 for (LatLng latLngLeuLeu : locations) {
                     try {
                         resultAddresses = geocoder.getFromLocation(latLngLeuLeu.latitude, latLngLeuLeu.longitude, 1);
-                    } catch (IOException e){
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                     mMap.addMarker(new MarkerOptions()
@@ -200,11 +207,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    private void showCurrentPlaceInformation(LatLng latLng){
+    private void showCurrentPlaceInformation(LatLng latLng) {
         List<Address> resultAddresses = null;
         try {
             resultAddresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         MarkerOptions markerOptions = new MarkerOptions();
@@ -213,25 +220,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerOptions.title(resultAddresses.get(0).getAddressLine(0));
         mMap.addMarker(markerOptions);
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng,13);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 13);
         mMap.animateCamera(cameraUpdate);
     }
 
-    private void getDeviceLocationAndMoveCamera(){
+    private void getDeviceLocationAndMoveCamera() {
         Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
         locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     mLastKnownLocation = task.getResult();
                     LatLng target = new LatLng(mLastKnownLocation.getLatitude()
-                            ,mLastKnownLocation.getLongitude());
+                            , mLastKnownLocation.getLongitude());
                     MarkerOptions mark = new MarkerOptions()
                             .title("Current Position.")
                             .position(target)
-                            .icon(BitmapDescriptorFactory.fromBitmap(Utils.createMarker(MainActivity.this,R.drawable.watashi,"Watashi")));
+                            .icon(BitmapDescriptorFactory.fromBitmap(Utils.createMarker(MainActivity.this, R.drawable.watashi, "Watashi")));
                     mMap.addMarker(mark);
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(target,13);
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(target, 13);
                     mMap.animateCamera(cameraUpdate);
                 } else {
                     Toast.makeText(MainActivity.this, "problem here", Toast.LENGTH_SHORT).show();
@@ -240,19 +247,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    private void updateCurrentLocation(){
+    private void updateCurrentLocation() {
         Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
         locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     mLastKnownLocation = task.getResult();
                     LatLng target = new LatLng(mLastKnownLocation.getLatitude()
-                            ,mLastKnownLocation.getLongitude());
+                            , mLastKnownLocation.getLongitude());
                     MarkerOptions mark = new MarkerOptions()
                             .title("Current Position.")
                             .position(target)
-                            .icon(BitmapDescriptorFactory.fromBitmap(Utils.createMarker(MainActivity.this,R.drawable.watashi,"Watashi")));
+                            .icon(BitmapDescriptorFactory.fromBitmap(Utils.createMarker(MainActivity.this, R.drawable.watashi, "Watashi")));
                     mMap.addMarker(mark);
                 } else {
                     Toast.makeText(MainActivity.this, "problem here", Toast.LENGTH_SHORT).show();
@@ -261,7 +268,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    private void showDirectionResult(){
+    private void showDirectionResult(boolean reverse) {
+        mMap.clear();
 
         EditText edtStart = findViewById(R.id.input_start_point);
         EditText edtEnd = findViewById(R.id.input_search);
@@ -269,13 +277,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final String sStartPoint = edtStart.getText().toString();
         final String sEndPoint = edtEnd.getText().toString();
 
-        if(sStartPoint.isEmpty()){
+        if (sStartPoint.isEmpty()) {
             edtStart.setError("required");
             edtStart.requestFocus();
             return;
         }
 
-        if(sEndPoint.isEmpty()){
+        if (sEndPoint.isEmpty()) {
             edtEnd.setError("required");
             edtEnd.requestFocus();
             return;
@@ -283,23 +291,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         List<Address> addressesStart = null;
         List<Address> addressesEnd = null;
-        try{
-            addressesStart = geocoder.getFromLocationName(edtStart.getText().toString(),1);
-            addressesEnd = geocoder.getFromLocationName(edtEnd.getText().toString(),1);
-        }catch (IOException e){
+        try {
+            addressesStart = geocoder.getFromLocationName(edtStart.getText().toString(), 1);
+            addressesEnd = geocoder.getFromLocationName(edtEnd.getText().toString(), 1);
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if(addressesStart.size()>0 && addressesEnd.size()>0){
+        if (addressesStart.size() > 0 && addressesEnd.size() > 0) {
             double latStart = addressesStart.get(0).getLatitude();
             double lonStart = addressesStart.get(0).getLongitude();
-            LatLng startPoint = new LatLng(latStart,lonStart);
+            LatLng startPoint = new LatLng(latStart, lonStart);
 
             double latEnd = addressesEnd.get(0).getLatitude();
             double lonEnd = addressesEnd.get(0).getLongitude();
-            LatLng endPoint = new LatLng(latEnd,lonEnd);
+            LatLng endPoint = new LatLng(latEnd, lonEnd);
 
-            mapViewModel.createDirectionResult(latStart,lonStart,latEnd,lonEnd);
+            if (!reverse) {
+                mapViewModel.createDirectionResult(latStart, lonStart, latEnd, lonEnd);
+            } else {
+                mapViewModel.createReverseDirectionResult(latStart, lonStart, latEnd, lonEnd);
+            }
 
             mMap.addMarker(new MarkerOptions()
                     .position(startPoint)
@@ -314,23 +326,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .include(endPoint)
                     .build();
             int padding = 200;
-            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,padding);
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
             mMap.animateCamera(cu);
 
         }
     }
 
-    private void showSearchLocationResult(){
+    private void showSearchLocationResult() {
         EditText etEndereco = findViewById(R.id.input_search);
 
         List<Address> addresses = null;
-        try{
-            addresses = geocoder.getFromLocationName(etEndereco.getText().toString(),1);
-        } catch (IOException e){
+        try {
+            addresses = geocoder.getFromLocationName(etEndereco.getText().toString(), 1);
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if(addresses.size() > 0) {
+        if (addresses.size() > 0) {
             double latitude = addresses.get(0).getLatitude();
             double longitude = addresses.get(0).getLongitude();
             locations.add(new LatLng(latitude, longitude));
@@ -354,13 +366,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         public void onLocationChanged(Location location) {
             LatLng target = new LatLng(location.getLatitude()
-                    ,location.getLongitude());
+                    , location.getLongitude());
             MarkerOptions mark = new MarkerOptions()
                     .title("Current Position.")
                     .position(target)
-                    .icon(BitmapDescriptorFactory.fromBitmap(Utils.createMarker(MainActivity.this,R.drawable.watashi,"Watashi")));
+                    .icon(BitmapDescriptorFactory.fromBitmap(Utils.createMarker(MainActivity.this, R.drawable.watashi, "Watashi")));
             mMap.addMarker(mark);
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(target,13);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(target, 13);
             mMap.animateCamera(cameraUpdate);
         }
 
