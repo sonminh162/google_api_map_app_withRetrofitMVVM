@@ -10,7 +10,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -21,6 +20,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -37,23 +38,16 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.lifetime.google_map_api_mvvm_retrofit.R;
-import com.lifetime.google_map_api_mvvm_retrofit.model.Leg;
-import com.lifetime.google_map_api_mvvm_retrofit.model.Maneuver;
-import com.lifetime.google_map_api_mvvm_retrofit.model.ResultForAll;
-import com.lifetime.google_map_api_mvvm_retrofit.model.Route;
-import com.lifetime.google_map_api_mvvm_retrofit.retrofit.GetDataService;
-import com.lifetime.google_map_api_mvvm_retrofit.retrofit.RetrofitClientInstance;
 import com.lifetime.google_map_api_mvvm_retrofit.utils.Utils;
+import com.lifetime.google_map_api_mvvm_retrofit.viewmodel.MapViewModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private MapViewModel mapViewModel;
 
     private static final int LOCATION_REQUEST = 500;
 
@@ -77,17 +71,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private EditText startPoint;
 
-    //test
     List<LatLng> listPoints;
-
-    GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
-
-    ResultForAll result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mapViewModel = ViewModelProviders.of(this).get(MapViewModel.class);
+        mapViewModel.init();
 
         locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
@@ -132,17 +124,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-        getDeviceLocationAndMoveCamera();
-
-        findViewById(R.id.border).setOnClickListener(new View.OnClickListener() {
+        mapViewModel.directionRequest.observe(this, new Observer<ArrayList>() {
             @Override
-            public void onClick(View view) {
-                getDeviceLocationAndMoveCamera();
+            public void onChanged(ArrayList arrayList) {
+                PolylineOptions polylineOptions = new PolylineOptions();
+                polylineOptions.addAll(arrayList);
+                polylineOptions.width(15);
+                polylineOptions.color(Color.BLUE);
+                polylineOptions.geodesic(true);
+                mMap.addPolyline(polylineOptions);
             }
         });
 
+        getDeviceLocationAndMoveCamera();
+
         SetUpUIAddSearchFeature();
 
+    }
+
+    private void SetUpUIAddSearchFeature(){
         findViewById(R.id.border_clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -151,15 +151,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        findViewById(R.id.border).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getDeviceLocationAndMoveCamera();
+            }
+        });
+
+        findViewById(R.id.direction).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDirectionResult();
+            }
+        });
+
+        mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH
+                        || actionId == EditorInfo.IME_ACTION_DONE
+                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
+                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER){
+                    showSearchLocationResult();
+                }
+                return false;
+            }
+        });
+
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 mMap.clear();
-
-                getLocationValueNoMoveCamera();
-
+                updateCurrentLocation();
                 List<Address> resultAddresses = null;
-
                 for (LatLng latLngLeuLeu : locations) {
                     try {
                         resultAddresses = geocoder.getFromLocation(latLngLeuLeu.latitude, latLngLeuLeu.longitude, 1);
@@ -171,7 +195,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .title(resultAddresses.get(0).getAddressLine(0))
                     );
                 }
-
                 showCurrentPlaceInformation(latLng);
             }
         });
@@ -217,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    private void getLocationValueNoMoveCamera(){
+    private void updateCurrentLocation(){
         Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
         locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
             @Override
@@ -234,31 +257,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     Toast.makeText(MainActivity.this, "problem here", Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
-    }
-
-    private void SetUpUIAddSearchFeature(){
-        Log.d("TAG","SetUpUIAddSearchFeature: initializing");
-
-        findViewById(R.id.direction).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDirectionResult();
-            }
-        });
-
-        mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if(actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
-                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER){
-
-                    showResult();
-                }
-                return false;
             }
         });
     }
@@ -301,47 +299,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             double lonEnd = addressesEnd.get(0).getLongitude();
             LatLng endPoint = new LatLng(latEnd,lonEnd);
 
-            Call<ResultForAll> call = service.getResultDataFromStartPointEndPoint(getResources().getString(R.string.app_id),getResources().getString(R.string.app_code),"fastest;car;traffic:enabled","now",latStart + "," + lonStart,latEnd + "," + lonEnd);
-            call.enqueue(new Callback<ResultForAll>() {
-                @Override
-                public void onResponse(Call<ResultForAll> call, Response<ResultForAll> response) {
-                    result = response.body();
-                    List<Route> routes = result.getResponse().getRoute();
-                    ArrayList points = null;
-                    PolylineOptions polylineOptions = null;
-
-                    for(int i = 0 ; i < routes.size(); i++){
-                        List<Leg> legs = routes.get(i).getLeg();
-                        polylineOptions = new PolylineOptions();
-
-                        for(int j = 0; j < legs.size(); j++){
-                            List<Maneuver> maneuvers = legs.get(j).getManeuver();
-                            points = new ArrayList();
-
-                            for(int k = 0; k < maneuvers.size(); k++){
-                                double lat = maneuvers.get(k).getPosition().getLatitude();
-                                double lon = maneuvers.get(k).getPosition().getLongitude();
-
-                                points.add(new LatLng(lat,lon));
-                            }
-                            polylineOptions.addAll(points);
-                            polylineOptions.width(15);
-                            polylineOptions.color(Color.BLUE);
-                            polylineOptions.geodesic(true);
-                        }
-                    }
-
-                    if(polylineOptions !=null){
-                        mMap.addPolyline(polylineOptions);
-                    }else {
-                        Toast.makeText(getApplicationContext(), "Direction not found", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResultForAll> call, Throwable t) {
-                }
-            });
+            mapViewModel.createDirectionResult(latStart,lonStart,latEnd,lonEnd);
 
             mMap.addMarker(new MarkerOptions()
                     .position(startPoint)
@@ -362,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void showResult(){
+    private void showSearchLocationResult(){
         EditText etEndereco = findViewById(R.id.input_search);
 
         List<Address> addresses = null;

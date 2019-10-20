@@ -4,7 +4,6 @@ import com.lifetime.google_map_api_mvvm_retrofit.model.ResultForAll;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface GetDataService {
