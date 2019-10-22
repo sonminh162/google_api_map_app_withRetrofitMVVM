@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (!reverse) {
                 mapViewModel.createDirectionResult(latStart, lonStart, latEnd, lonEnd);
             } else {
-                mapViewModel.createReverseDirectionResult(latStart, lonStart, latEnd, lonEnd);
+                mapViewModel.createDirectionResult(latEnd, lonEnd, latStart, lonStart);
             }
 
             mMap.addMarker(new MarkerOptions()
